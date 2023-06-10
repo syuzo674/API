@@ -1,11 +1,39 @@
 import streamlit as st
 import subprocess
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+import os
 
-# ボタンの作成
-increment = st.button("make Playlist")
+# 認証パート Authentication part
+username = ""
+my_id = ""
+my_secret = ""
+redirect_uri = "http://localhost:8888/callback"
+
+# アプリの権限付与に使用する
+scope = "user-library-read user-read-playback-state playlist-read-private user-read-currently-playing streaming user-read-recently-played playlist-read-collaborative playlist-modify-public playlist-modify-private"
+
+# 認証情報の取得
+auth_manager = SpotifyOAuth(
+    client_id=my_id,
+    client_secret=my_secret,
+    redirect_uri=redirect_uri,
+    scope=scope,
+    username=username,
+)
+
+# 認証情報の保存
+auth_manager.get_access_token(as_dict=False)
+os.environ["SPOTIPY_CLIENT_ID"] = my_id
+os.environ["SPOTIPY_CLIENT_SECRET"] = my_secret
+os.environ["SPOTIPY_REDIRECT_URI"] = redirect_uri
+os.environ["SPOTIPY_USERNAME"] = username
+
+# プレイリストボタンの作成
+make_playlist_button = st.button("make Playlist")
 
 # ボタンが押された場合の処理
-if increment:
+if make_playlist_button:
     # 別のPythonファイルを実行するコマンド
     command = ["python", "playlist.py"]
 
@@ -15,11 +43,11 @@ if increment:
     # プロセスの終了を待機
     stdout, stderr = process.communicate()
 
+# 検索ボタンの作成
+start_music_button = st.button("start music")
 
-# ボタンの作成
-increment = st.button("start music")
-
-if increment:
+# ボタンが押された場合の処理
+if start_music_button:
     # 別のPythonファイルを実行するコマンド
     command = ["python", "start.py"]
 
@@ -30,10 +58,11 @@ if increment:
     stdout, stderr = process.communicate()
 
 
-# ボタンの作成
-increment = st.button("stop music")
+# 停止ボタンの作成
+stop_music_button = st.button("stop music")
 
-if increment:
+# ボタンが押された場合の処理
+if stop_music_button:
     # 別のPythonファイルを実行するコマンド
     command = ["python", "stop.py"]
 

@@ -1,27 +1,29 @@
 import spotipy
-from spotipy.oauth2 import SpotifyOAuth
+import os
 
 # 認証パート Authentication part
-username = ""
-my_id = ""
-my_secret = ""
-redirect_uri = "http://localhost:8888/callback"
+username = os.getenv("SPOTIPY_USERNAME")
+my_id = os.getenv("SPOTIPY_CLIENT_ID")
+my_secret = os.getenv("SPOTIPY_CLIENT_SECRET")
+redirect_uri = os.getenv("SPOTIPY_REDIRECT_URI")
+scope = os.getenv("SPOTIPY_SCOPE")
 
-# アプリの権限付与に使用する
-scope = "user-read-playback-state user-modify-playback-state user-read-currently-playing streaming playlist-read-private"
-
-# アクセストークンの取得
-sp = spotipy.Spotify(
-    auth_manager=SpotifyOAuth(
-        client_id=my_id, client_secret=my_secret, redirect_uri=redirect_uri, scope=scope
-    )
+# 認証マネージャーの作成
+auth_manager = spotipy.oauth2.SpotifyOAuth(
+    client_id=my_id,
+    client_secret=my_secret,
+    redirect_uri=redirect_uri,
+    scope=scope,
+    username=username,
 )
 
-# ユーザーのプレイリスト一覧を取得
-playlists = sp.current_user_playlists()
+# Spotifyオブジェクトの作成
+spotify = spotipy.Spotify(auth_manager=auth_manager)
 
-# プレイリストのIDを取得
-# プレイリスト名からIDを取得
+# ユーザーのプレイリスト一覧を取得
+playlists = spotify.current_user_playlists()
+
+# プレイリストIDをプレイリスト名から取得
 target_playlist_name = "test_list_00"
 
 playlist_id = None
@@ -37,9 +39,9 @@ else:
     print("指定したプレイリストが存在しません。")
 
 # デバイスの取得
-devices = sp.devices()
+devices = spotify.devices()
 device_id = devices["devices"][1]["id"]
 
 # 取得したプレイリストを再生
 playlist_uri = "spotify:playlist:" + playlist_id
-sp.start_playback(device_id=device_id, context_uri=playlist_uri)
+spotify.start_playback(device_id=device_id, context_uri=playlist_uri)
