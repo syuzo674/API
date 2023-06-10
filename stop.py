@@ -1,21 +1,24 @@
 import spotipy
-from spotipy.oauth2 import SpotifyOAuth
+import os
 
 # 認証パート Authentication part
-username = ""
-my_id = ""
-my_secret = ""
-redirect_uri = "http://localhost:8888/callback"
+username = os.getenv("SPOTIPY_USERNAME")
+my_id = os.getenv("SPOTIPY_CLIENT_ID")
+my_secret = os.getenv("SPOTIPY_CLIENT_SECRET")
+redirect_uri = os.getenv("SPOTIPY_REDIRECT_URI")
+scope = os.getenv("SPOTIPY_SCOPE")
 
-# アプリの権限付与に使用する
-scope = "user-read-playback-state user-modify-playback-state"
-
-# アクセストークンの取得
-sp = spotipy.Spotify(
-    auth_manager=SpotifyOAuth(
-        client_id=my_id, client_secret=my_secret, redirect_uri=redirect_uri, scope=scope
-    )
+# 認証マネージャーの作成
+auth_manager = spotipy.oauth2.SpotifyOAuth(
+    client_id=my_id,
+    client_secret=my_secret,
+    redirect_uri=redirect_uri,
+    scope=scope,
+    username=username,
 )
 
+# Spotifyオブジェクトの作成
+spotify = spotipy.Spotify(auth_manager=auth_manager)
+
 # 曲の一時停止
-sp.pause_playback()
+spotify.pause_playback()
